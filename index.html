@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>GifTastic Animals</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+  <style type="text/css">
+    
+    button, input {
+      margin: 5px;
+    }
+    .gifs{
+      float: left;
+      margin-left: 5px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    
+    <!-- Rendered buttons will get dumped here  -->
+    <div class="row">
+      <div class="col-md-12" id="buttons-view"></div>
+    </div>
+    <div class="row">
+    <!-- Gifs will get dumped Dere -->
+      <div class="col-md-9" id="animals-view"></div>
+      <div class="col-md-3">
+        <form id="animal-form">
+          <div class="form-group">
+          <label for="animal-input">Type to add an Animal</label>
+          <input class="form-control" type="text" id="animal-add"><br>
+
+      <!-- Button triggers new animal to be added -->
+          <input class="form-control" id="add-animal" type="submit" value="Add Animal">
+          </div>
+        </form>
+      </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script type="text/javascript">
+
+    // Initial array of movies
+      var animals = ["Dog", "Cow", "Mouse", "Cat"];
+
+      function displayAnimalGif(){
+
+        var animal = $(this).attr("data-name");
+        var queryURL = "https://api.giphy.com/v1/gifs/search?q="+animal+"&api_key=72192d6d88444f74a9f170b5699ef26b&limit=10&rating=g";
+
+        $.ajax({
+          url:queryURL,
+          method: "GET"
+        }).done(function(response) {
+          var results = response.data;
+          $("#animals-view").empty();
+          for (var i=0; i<results.length; i++){
+          // Make a div with jQuery and store it in a variable named animalDiv.
+          var animalDiv = $("<div class='gifs'>");
+          // Make a paragraph tag with jQuery and store it in a variable named p.
+          var p = $("<p>").text("Rating: "+results[i].rating);
+          // Make an image tag with jQuery and store it in a variable named animalImage.
+          var animalImage = $("<img class='gif'>"); 
+          // Set the image's src to results[i]'s fixed_height.url.
+          animalImage.attr("src", results[i].images.fixed_height_still.url);
+          animalImage.data("data-still", results[i].images.fixed_height_still.url);
+          animalImage.data("data-animate", results[i].images.fixed_height.url);
+          animalImage.data("data-state", "animate");
+          // Append the p variable to the animalDiv variable.
+          animalDiv.append(animalImage);
+          // Append the animalImage variable to the animalDiv variable.
+          animalDiv.append(p);
+          // Prepend the animalDiv variable to the element with an id of gifs-appear-here.
+          $("#animals-view").prepend(animalDiv);
+          }
+        })
+      }
+    
+
+
+      function renderButtons() {
+        
+        $("#buttons-view").empty();
+        // Looping through the array of movies
+        for (var i = 0; i < animals.length; i++) {
+          // Then dynamicaly generating buttons for each animal in the array
+          
+          var a = $("<button>");
+          // Adding a class of movie to our button
+          a.addClass("animal");
+          // Adding a data-attribute
+          a.attr("data-name", animals[i]);
+          // Providing the initial button text
+          a.text(animals[i]);
+          // Adding the button to the buttons-view div
+          $("#buttons-view").append(a);
+        }
+      }
+
+      $("#add-animal").on("click", function(event){
+        event.preventDefault();
+
+        var animalInput = $("#animal-add").val();
+
+        animals.push(animalInput);
+
+        console.log(animals);
+
+        renderButtons();
+
+      });
+
+      $(document).on("click", ".animal", displayAnimalGif);
+
+      $(".gif").on("click", function() {
+
+        var state = $(this).attr("data-state");
+        if(state==="still"){
+          $(this).attr("src", $(this).attr("data-animate")),
+          $(this).attr("data-state", "animate");
+        }
+        else{
+          $(this).attr("src", $(this).attr("data-still")),
+          $(this).attr("data-state", "still");
+        }
+      });
+
+      renderButtons();
+
+
+
+
+
+  </script>
+  </body>
+  </html>
+
+    
